@@ -29,10 +29,6 @@ private:
     double min_conf;
     double R;//距离R
     map<string, int> count_et;//保存空间特征出现次数
-    // int k;//co-location的阶
-    // vector<SpaceInstance> Ck;//k阶候选co-location集
-    // map<set<int>, set<int> > Tk;//Ck中co-location的表实例集
-    // vector<vector<string> > Pk;//k阶频繁co-location集
 
 public:
     JoinBased(const vector<SpaceInstance> &E, const vector<string> &ET, double min_prev, double min_conf, double R) : 
@@ -64,6 +60,7 @@ bool JoinBased::isNiber(Position a, Position b){
     }
     return false;
 };
+
 //存放1阶co-lcoation和表实例
 vector<pair<set<string>, set<int> > > JoinBased::gen_table_ins(const vector<string> &C1, const vector<SpaceInstance> &E){
     vector<pair<set<string>, set<int> > > T1;
@@ -73,7 +70,7 @@ vector<pair<set<string>, set<int> > > JoinBased::gen_table_ins(const vector<stri
         for(auto it_ins = E.begin(); it_ins < E.end(); it_ins++){
             if((*it_ins).FeatureType == (*it)){
                 co_location.insert(*it);
-                id.insert((*it_ins).InstanceID);
+                id.insert((*it_ins).InstanceID); 
             }
         }
         T1.push_back(make_pair(co_location, id));
@@ -81,7 +78,7 @@ vector<pair<set<string>, set<int> > > JoinBased::gen_table_ins(const vector<stri
     return T1;
 };
 
-vector<set<string> > & C1_2_P1(vector<string> C1){
+vector<set<string> > C1_2_P1(vector<string> C1){//如果返回引用，不行，因为ret的作用域离开该函数会被销毁，导致访问到非法地址
     vector<set<string> > ret;
     for(auto it = C1.begin(); it < C1.end(); it++){
         set<string> s;
@@ -91,10 +88,39 @@ vector<set<string> > & C1_2_P1(vector<string> C1){
     return ret;
 }
 
+// int is_same(set<string> l, set<string> r){
+//     for(auto it = l.begin(); it != l.end(); it++){
+//         r.erase(*it);
+//     }
+//     return r.size();
+// }   
+
+vector<set<string> > gen_candidate_col(vector<set<string> > &Pk, int k){
+    vector<set<string> > ck_add_1;
+    for(auto it = Pk.begin(); it < Pk.end(); it++){
+        set<string> temp_l = *it;
+        for(auto it_r = ++(it); it_r < Pk.end(); it_r++){
+            for(auto it_str = (*it_r).begin(); it_str != (*it_r).end(); it_str++){
+                temp_l.insert(*it_str);
+                if(temp_l.size() == k+1){
+                    ck_add_1.push_back(temp_l);
+                    temp_l = *it;
+                    continue;
+                }
+            }
+        }
+    }
+}
+
 void JoinBased::process(){
-    vector<set<string> > P1 = C1_2_P1(ET);
-    
-    int k = 2;
+    int k = 1;
+    vector<string> C1 = ET;
+    vector<set<string> > P1 = C1_2_P1(ET);//里面用set包装
+    vector<set<string> > Pk = P1;
+    vector<pair<set<string>, set<int> > > T1 = gen_table_ins(ET, E);
+    while(Pk.size() != 0){
+        vector<set<string> > Ck_add_1 = gen_candidate_col(Pk, k);
+    }
 
 
 }
