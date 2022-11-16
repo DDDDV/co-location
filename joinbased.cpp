@@ -39,7 +39,7 @@ public:
         E(E), ET(ET), min_prev(min_prev), min_conf(min_conf), R(R) {};
     void getCountET();//计算每个元素出现的次数，用于求参考率
     bool isNiber(Position a, Position b);//计算两个点的距离，如果满足R返回true，否则返回false;
-    vector<set<int> > gen_table_ins(const vector<string> &C1, const vector<SpaceInstance> &E);
+    vector<set<string>, set<int> > gen_table_ins(const vector<string> &C1, const vector<SpaceInstance> &E);
 };
 
 void JoinBased::getCountET(){
@@ -63,9 +63,20 @@ bool JoinBased::isNiber(Position a, Position b){
     }
     return false;
 }
-//表里存放数字就行了
-vector<set<int> > JoinBased::gen_table_ins(const vector<string> &C1, const vector<SpaceInstance> &E){
-    
+//存放1阶co-lcoation和表实例
+vector<set<string>, set<int> > JoinBased::gen_table_ins(const vector<string> &C1, const vector<SpaceInstance> &E){
+    vector<set<string>, set<int> > T1;
+    for(auto it = C1.begin(); it < C1.end(); it++){
+        set<string> co_location;
+        set<int> id;
+        for(auto it_ins = E.begin(); it_ins <= E.end(); it_ins++){
+            if((*it_ins).FeatureType == (*it)){
+                co_location.insert(*it);
+                id.insert((*it_ins).InstanceID);
+            }
+        }
+        T1.push_back(co_location, id);
+    }
 }
 int main(){
     vector<SpaceInstance> E{
