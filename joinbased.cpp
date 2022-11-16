@@ -39,7 +39,8 @@ public:
         E(E), ET(ET), min_prev(min_prev), min_conf(min_conf), R(R) {};
     void getCountET();//计算每个元素出现的次数，用于求参考率
     bool isNiber(Position a, Position b);//计算两个点的距离，如果满足R返回true，否则返回false;
-    vector<set<string>, set<int> > gen_table_ins(const vector<string> &C1, const vector<SpaceInstance> &E);
+    vector<pair<set<string>, set<int> > > gen_table_ins(const vector<string> &C1, const vector<SpaceInstance> &E);
+    void process();
 };
 
 void JoinBased::getCountET(){
@@ -54,7 +55,7 @@ void JoinBased::getCountET(){
             }
         }
     }
-}
+};
 
 bool JoinBased::isNiber(Position a, Position b){
     double distance = sqrt((pow(a.x - b.x, 2) + pow(a.y - b.y, 2)));
@@ -62,22 +63,42 @@ bool JoinBased::isNiber(Position a, Position b){
         return true;
     }
     return false;
-}
+};
 //存放1阶co-lcoation和表实例
-vector<set<string>, set<int> > JoinBased::gen_table_ins(const vector<string> &C1, const vector<SpaceInstance> &E){
-    vector<set<string>, set<int> > T1;
+vector<pair<set<string>, set<int> > > JoinBased::gen_table_ins(const vector<string> &C1, const vector<SpaceInstance> &E){
+    vector<pair<set<string>, set<int> > > T1;
     for(auto it = C1.begin(); it < C1.end(); it++){
         set<string> co_location;
         set<int> id;
-        for(auto it_ins = E.begin(); it_ins <= E.end(); it_ins++){
+        for(auto it_ins = E.begin(); it_ins < E.end(); it_ins++){
             if((*it_ins).FeatureType == (*it)){
                 co_location.insert(*it);
                 id.insert((*it_ins).InstanceID);
             }
         }
-        T1.push_back(co_location, id);
+        T1.push_back(make_pair(co_location, id));
     }
+    return T1;
+};
+
+vector<set<string> > & C1_2_P1(vector<string> C1){
+    vector<set<string> > ret;
+    for(auto it = C1.begin(); it < C1.end(); it++){
+        set<string> s;
+        s.insert(*it);
+        ret.push_back(s);
+    }
+    return ret;
 }
+
+void JoinBased::process(){
+    vector<set<string> > P1 = C1_2_P1(ET);
+    
+    int k = 2;
+
+
+}
+
 int main(){
     vector<SpaceInstance> E{
         SpaceInstance(1, Position(24,14), "A"),
@@ -95,7 +116,8 @@ int main(){
         SpaceInstance(1, Position(40,20), "D"),
         SpaceInstance(2, Position(6,10), "D")
     };
-    vector<string> ET{"A", "B", "C", "D"};
+    vector<string> ET{"A", "B", "C", "D"};//这里设置为vector<set<string> > 更好一些
     JoinBased j(E, ET, 0.3, 0.3, 12);
     j.getCountET();
+    j.gen_table_ins(ET, E);
 }
