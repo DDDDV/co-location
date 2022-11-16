@@ -120,4 +120,5 @@ int main(){
     JoinBased j(E, ET, 0.3, 0.3, 12);
     j.getCountET();
     j.gen_table_ins(ET, E);
+    j.process();
 }
