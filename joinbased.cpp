@@ -93,7 +93,7 @@ vector<set<string> > C1_2_P1(vector<string> C1){//如果返回引用，不行，
 //         r.erase(*it);
 //     }
 //     return r.size();
-// }   
+// }
 
 vector<set<string> > gen_candidate_col(vector<set<string> > &Pk, int k){
     vector<set<string> > ck_add_1;
