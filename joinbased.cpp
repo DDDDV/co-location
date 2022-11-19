@@ -36,12 +36,30 @@ public:
     void getCountET();//计算每个元素出现的次数，用于求参考率
     bool isNiber(Position a, Position b);//计算两个点的距离，如果满足R返回true，否则返回false;
     vector<pair<set<string>, set<int> > > gen_table_ins(const vector<string> &C1, const vector<SpaceInstance> &E);
+    // map<vector<string>, vector<int> > createT2(const vector<SpaceInstance> &E);
+    vector<pair<vector<string>, vector<int> > > createT2(const vector<SpaceInstance> &E);
     void process();
 };
+bool cmp(pair<vector<string>, vector<int> > a, pair<vector<string>, vector<int> > b){
+    return a.first < b.first;
+}
+vector<pair<vector<string>, vector<int> > > JoinBased::createT2(const vector<SpaceInstance> &E){
+    vector<pair<vector<string>, vector<int> > > T2;
+    for(auto it = E.begin(); it < E.end(); it++){
+        for(auto it_r = (it+1); it_r < E.end(); it_r++){
+            if((*it).FeatureType != (*it_r).FeatureType && isNiber((*it).Location, (*it_r).Location)){//不相等
+                vector<string> temp_str{(*it).FeatureType, (*it_r).FeatureType};
+                vector<int> temp_int{(*it).InstanceID, (*it_r).InstanceID};
+                T2.push_back(make_pair(temp_str,temp_int));
+            }
+        }
+    }
+    sort(T2.begin(), T2.end(), cmp);
+    return T2;
+}
 
 void JoinBased::getCountET(){
     for(auto it_et = ET.begin(); it_et < ET.end(); it_et++){
-        // count_et.insert(pair<string, int>(*it_et, 0));
         for(auto it_e = E.begin(); it_e < E.end(); it_e++){
             if((*it_et) == (*it_e).FeatureType){
                 pair<map<string, int>::iterator, bool> p = count_et.insert(make_pair((*it_et), 1));
@@ -88,12 +106,6 @@ vector<set<string> > C1_2_P1(vector<string> C1){//如果返回引用，不行，
     return ret;
 }
 
-// int is_same(set<string> l, set<string> r){
-//     for(auto it = l.begin(); it != l.end(); it++){
-//         r.erase(*it);
-//     }
-//     return r.size();
-// }
 
 vector<set<string> > gen_candidate_col(vector<set<string> > &Pk, int k){
     vector<set<string> > ck_add_1;
@@ -112,15 +124,32 @@ vector<set<string> > gen_candidate_col(vector<set<string> > &Pk, int k){
     }
 }
 
+// 从粗表到频繁表的转换
+void Tk2Pk(const vector<pair<vector<string>, vector<int> > > &T_C, const map<string, int> &count_et, double min_prev){
+    //向map中插入vector，如果vector中保存内容相同，则插入失败，失败时向其中插入位置集合
+    set<vector<string> > t;
+    for(auto it = T_C.begin(); it < T_C.end(); it ++){
+        pair<set<vector<string> >::iterator, bool > p = t.insert((*it).first);
+    }
+    for(auto it = t.begin(); it != t.end(); it++){
+        for(auto it_tc = T_C.begin(); it_tc < T_C.end(); it_tc++){
+            set<int> per_i;
+            if((*it_tc).first == (*it)){//string相等，则计算内部的参与度
+                for(int i = 0; i < (*it).size(); i++){
+                    // per
+                }
+            }
+        }
+    }
+}
+
 void JoinBased::process(){
     int k = 1;
     vector<string> C1 = ET;
     vector<set<string> > P1 = C1_2_P1(ET);//里面用set包装
     vector<set<string> > Pk = P1;
-    vector<pair<set<string>, set<int> > > T1 = gen_table_ins(ET, E);
-    while(Pk.size() != 0){
-        vector<set<string> > Ck_add_1 = gen_candidate_col(Pk, k);
-    }
+    vector<pair<vector<string>, vector<int> > > T2_C2 = createT2(E);//T2和C2的数据结构，还没有进行参与度筛选
+    Tk2Pk(T2_C2, count_et, min_prev);
 
 
 }
@@ -143,7 +172,7 @@ int main(){
         SpaceInstance(2, Position(6,10), "D")
     };
     vector<string> ET{"A", "B", "C", "D"};//这里设置为vector<set<string> > 更好一些
-    JoinBased j(E, ET, 0.3, 0.3, 12);
+    JoinBased j(E, ET, 0.3, 0.3, 16);
     j.getCountET();
     j.gen_table_ins(ET, E);
     j.process();
