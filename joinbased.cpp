@@ -124,8 +124,31 @@ vector<set<string> > gen_candidate_col(vector<set<string> > &Pk, int k){
     }
 }
 
+void convert(const vector<pair<vector<string>, vector<int> > > &T_C){
+    /**{
+     * {A,B}:{1,1}
+     * {A,B}:{2,4}
+     * {A,B}:{3,3}
+     * {A,B}:{4,3}
+     * }
+     * ====>
+     * {
+     *  {A:{1,2,3,4}}
+     *  {B:{1,2,3}}
+     * }
+     * 
+    */
+    if(T_C.empty())
+        return;
+    for(auto it_all = T_C.begin(); it_all < T_C.end(); it_all++){
+        vector<string> chars = (*it_all).first;
+        
+    }
+}
+
 // 从粗表到频繁表的转换
 void Tk2Pk(const vector<pair<vector<string>, vector<int> > > &T_C, const map<string, int> &count_et, double min_prev){
+    convert(T_C);
     //向map中插入vector，如果vector中保存内容相同，则插入失败，失败时向其中插入位置集合
     set<vector<string> > t;
     for(auto it = T_C.begin(); it < T_C.end(); it ++){
