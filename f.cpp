@@ -50,7 +50,9 @@ void JoinBased::process(){
     vector<vector<string> > Pk = revert(P1);
     vector<_table> T1 = gen_table_ins(C1, E);
     cout << "process succeed" << endl;
-    while()
+    while(!Pk.empty()){
+        
+    }
 }
 
 
