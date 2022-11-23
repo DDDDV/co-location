@@ -34,10 +34,17 @@ vector<vector<string> > JoinBased::gen_candidate_colocation(const vector<vector<
     for(auto it = Pk.begin(); it < Pk.end(); it++){
         vector<string> temp = *it;
         for(auto it_r = (it+1); it_r < Pk.end(); it_r++){
-            vector<string> t = *it_r;
-            vector<string> merged = merge_v(temp, t);
-            if(merged.size() == k+1){
-                Ck_add_1.push_back(merged);
+            bool flag = true;
+            for(int i = 0; i < (k-1); i++){
+                if(temp[i] != (*it_r)[i]){
+                    flag = false;
+                    break;//匹配失败则不再进行匹配
+                }
+            }
+            if(flag == true){
+                temp.push_back((*it_r)[k-1]);
+                Ck_add_1.push_back(temp);
+                temp = *it;
             }
         }
     }
@@ -52,9 +59,51 @@ bool JoinBased::isNiber(const Position &a, const Position &b){
     return false;
 }
 
+bool is_same_table_pre_k(_table &a, _table &b, int k){
+    if(k == 0)
+        return true;//前0个一定相等
+    vector<string> a_str{a.first.begin(), a.first.end()};
+    vector<string> b_str{b.first.begin(), b.first.end()};
+    vector<int> a_int{a.second.begin(), a.second.end()};
+    vector<int> b_int{b.second.begin(), b.second.end()};
+    for(int i = 0; i < k; i++){
+        if(a_str[i] != b_str[i] || a_int[i] != b_int[i])
+            return false;
+    }
+    return true;
+}
+
+Position find_item_pos(const _table &t, int k, const vector<SpaceInstance> &E){
+    vector<string> v_str = t.first;
+    vector<int> v_int = t.second;
+    for(auto it = E.begin(); it < E.end(); it++){
+        if(v_str[k] == (*it).FeatureType && v_int[k] == (*it).InstanceID){
+            return (*it).Location;
+        }
+    }
+}
+
 //产生候选co-location的表实例
 vector<_table> JoinBased::gen_table_ins(double min_prev, const vector<vector<string> > &Ck_add_1, vector<_table> &Tk, double R){
-
+    vector<_table> Tc;
+    int k = (*(Tk.begin())).first.size();
+    for(auto it = Tk.begin(); it < Tk.end(); it++){
+        _table temp = (*it);
+        
+        for(auto it_r = (it+1); it_r < Tk.end(); it++){
+            _table t = (*it_r);
+            if(is_same_table_pre_k(temp, t, k-1)){//如果前k-1个相同才进行连接
+                if(isNiber(find_item_pos(temp, k, E), find_item_pos(t, k, E))){//需要找到表实例第i项对应的空间实例集的位置
+                    vector<string> t_str{temp.first.begin(), temp.first.end()};
+                    vector<int> t_int{temp.second.begin(), temp.second.end()};
+                    t_str.push_back(t.first[k-1]);
+                    t_int.push_back(t.second[k-1]);
+                    Tc.push_back(make_pair(t_str, t_int));
+                }
+            }
+        }
+    }
+    return Tc;
 }
 vector<vector<string> > revert(const vector<string> &P1){
     vector<vector<string> > Pk;
