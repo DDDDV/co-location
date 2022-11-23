@@ -37,9 +37,10 @@ public:
         E(E), ET(ET), min_prev(min_prev), min_conf(min_conf), R(R) {};
     //产生表实例集T1,格式应该是什么样的呢{ {A}:{1,2,3,4}, {B}:{}}
     vector<_table> gen_table_ins( const vector<string> &C1, const vector<SpaceInstance> &E);//C1==ET
-    vector<vector<string>, vector<int> > gen_table_ins(double min_prev, const vector<vector<string> > &Ck_add_1, double R);
+    vector<_table> gen_table_ins(double min_prev, const vector<vector<string> > &Ck_add_1, vector<_table> &Tk, double R);
     vector<vector<string> > gen_candidate_colocation(const vector<vector<string> > &Pk, int k);
     void process();
+    bool isNiber(const Position &a, const Position &b);
 };
 
 #endif
