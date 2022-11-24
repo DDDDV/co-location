@@ -59,47 +59,56 @@ bool JoinBased::isNiber(const Position &a, const Position &b){
     return false;
 }
 
-bool is_same_table_pre_k(_table &a, _table &b, int k){
-    if(k == 0)
-        return true;//前0个一定相等
-    vector<string> a_str{a.first.begin(), a.first.end()};
-    vector<string> b_str{b.first.begin(), b.first.end()};
-    vector<int> a_int{a.second.begin(), a.second.end()};
-    vector<int> b_int{b.second.begin(), b.second.end()};
-    for(int i = 0; i < k; i++){
-        if(a_str[i] != b_str[i] || a_int[i] != b_int[i])
-            return false;
-    }
-    return true;
-}
-
-Position find_item_pos(const _table &t, int k, const vector<SpaceInstance> &E){
-    vector<string> v_str = t.first;
-    vector<int> v_int = t.second;
+Position JoinBased::getPosition(string type, int id){
     for(auto it = E.begin(); it < E.end(); it++){
-        if(v_str[k] == (*it).FeatureType && v_int[k] == (*it).InstanceID){
+        if((*it).FeatureType == type && (*it).InstanceID == id){
             return (*it).Location;
         }
     }
 }
 
-//产生候选co-location的表实例
-vector<_table> JoinBased::gen_table_ins(double min_prev, const vector<vector<string> > &Ck_add_1, vector<_table> &Tk, double R){
-    vector<_table> Tc;
+//把这个函数改造成连接函数
+bool JoinBased::is_same_pre_k(const _pro_table &a, const _pro_table &b, int k){
+    if(k == 0){
+        return true;
+    }
+    //如果前k-1项的string不相等，那么就说明不用继续比较了
+    for(int i = 0; i < k; i++){
+        if(a.first[i] != b.first[i]){
+            return false;
+        }
+    }
+    //接着比较前k个数是不是相等，如果不相等也不用比较了
+    vector<set<int> > _save;
+    for(auto it = a.second.begin(); it < a.second.end(); it++){
+        set<int> merge_int{(*it).begin(), ((*it).begin()+k)};
+        for(auto it_r = b.second.begin(); it_r < b.second.end(); it_r++){
+            merge_int.insert((*it_r).begin(), (*it_r).begin()+k);
+            if(merge_int.size() == k){
+                //说明前k个相等，其实这时候就可以连接了
+                // _save.push_back(merge_int);
+                
+                if(isNiber(getPosition((a.first)[k], (*it)[k]), getPosition((b.first)[k], (*it_r)[k]))){
+
+                }
+                
+            }
+        }
+    }
+
+}
+
+//产生候选co-location的表实例, 产生表实例 _table设计的有问题
+vector<_pro_table> JoinBased::gen_table_ins(double min_prev, const vector<vector<string> > &Ck_add_1, vector<_pro_table> &Tk, double R){
+    vector<_pro_table> Tc;
     int k = (*(Tk.begin())).first.size();
     for(auto it = Tk.begin(); it < Tk.end(); it++){
-        _table temp = (*it);
-        
-        for(auto it_r = (it+1); it_r < Tk.end(); it++){
-            _table t = (*it_r);
-            if(is_same_table_pre_k(temp, t, k-1)){//如果前k-1个相同才进行连接
-                if(isNiber(find_item_pos(temp, k, E), find_item_pos(t, k, E))){//需要找到表实例第i项对应的空间实例集的位置
-                    vector<string> t_str{temp.first.begin(), temp.first.end()};
-                    vector<int> t_int{temp.second.begin(), temp.second.end()};
-                    t_str.push_back(t.first[k-1]);
-                    t_int.push_back(t.second[k-1]);
-                    Tc.push_back(make_pair(t_str, t_int));
-                }
+        _pro_table temp = (*it);
+        for(auto it_r = (it+1); it_r < Tk.end(); it_r++){
+            _pro_table t = (*it_r);
+            if(is_same_pre_k(temp, t, k-1)){//如果前k个相等，则尝试连接，连接的内容为第k个元素
+                // join()
+                
             }
         }
     }
@@ -114,17 +123,32 @@ vector<vector<string> > revert(const vector<string> &P1){
     return Pk;
 }
 
+vector<_pro_table> table_2_pro_table(const vector<_table> &T1){
+    vector<_pro_table> Tk;
+    for(auto it = T1.begin(); it < T1.end(); it++){
+        vector<string> v_string = (*it).first;
+        vector<vector<int> > v_v_int;
+        for(auto it_int = (*it).second.begin(); it_int < (*it).second.end(); it_int++){
+            v_v_int.push_back(vector<int>{*it_int});
+        }
+        Tk.push_back(make_pair(v_string, v_v_int));
+    }
+    return Tk;
+}
+
+
 void JoinBased::process(){
     int k = 1;
     vector<string> C1 = ET;
     vector<string> P1 = ET;
     vector<vector<string> > Pk = revert(P1);
     vector<_table> T1 = gen_table_ins(C1, E);
-    vector<_table> Tk = T1;
+    vector<_pro_table> Tk = table_2_pro_table(T1);
+    // vector<_table> Tk = T1;
     cout << "process succeed" << endl;
     while(!Pk.empty()){
-        vector<vector<string> > Ck_add_1 = gen_candidate_colocation(Pk, 1);
-        vector<_table> Tk_add_1 = gen_table_ins(min_prev, Ck_add_1, Tk, R);
+        vector<vector<string> > Ck_add_1 = gen_candidate_colocation(Pk, k);
+        vector<_pro_table> Tk_add_1 = gen_table_ins(min_prev, Ck_add_1, Tk, R);
     }
 }
 

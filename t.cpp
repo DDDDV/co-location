@@ -21,5 +21,11 @@ int main(){
     };
     vector<string> ET{"A", "B", "C", "D"};
     JoinBased j(E, ET, 0.3, .03, 16);
-    j.process();
+    // j.process();
+    vector<vector<string> >temp{{"A","B"}, {"A","C"}};
+    vector<_pro_table> tk{
+        make_pair(vector<string>{"A", "B"}, vector<vector<int> >{{1,2},{2,4},{3,3},{4,3}}),
+        make_pair(vector<string>{"A", "C"}, vector<vector<int> >{{1,1},{2,2},{3,1},{3,3}})
+    };
+    j.gen_table_ins(0.2, temp, tk, 12);
 }
