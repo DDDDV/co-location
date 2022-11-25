@@ -51,6 +51,7 @@ vector<vector<string> > JoinBased::gen_candidate_colocation(const vector<vector<
     return Ck_add_1;
 }
 
+//现在的代码计算临近时需要把候选项和前面的所有都计算一遍，如果临近才返回true
 bool JoinBased::isNiber(const Position &a, const Position &b){
     double distance = sqrt((pow(a.x - b.x, 2) + pow(a.y - b.y, 2)));
     if(distance < R){
@@ -68,7 +69,9 @@ Position JoinBased::getPosition(string type, int id){
 }
 
 //把这个函数改造成连接函数
-bool JoinBased::is_same_pre_k(const _pro_table &a, const _pro_table &b, int k){
+bool JoinBased::is_same_pre_k(const _pro_table &a, const _pro_table &b, int k, vector<_pro_table> &Tc){
+    _pro_table temp;
+    vector<vector<int> > v_v_int;
     if(k == 0){
         return true;
     }
@@ -87,13 +90,24 @@ bool JoinBased::is_same_pre_k(const _pro_table &a, const _pro_table &b, int k){
             if(merge_int.size() == k){
                 //说明前k个相等，其实这时候就可以连接了
                 // _save.push_back(merge_int);
-                
                 if(isNiber(getPosition((a.first)[k], (*it)[k]), getPosition((b.first)[k], (*it_r)[k]))){
-
+                    // vector<string> t_str{a.first.begin(), a.first.end()};
+                    // t_str.push_back((b.first[k]));
+                    vector<int> t_int{(*it).begin(), (*it).end()};
+                    t_int.push_back((*it_r)[k]);
+                    v_v_int.push_back(t_int);
+                    
                 }
-                
             }
+            merge_int.clear();
         }
+    }
+    if(!v_v_int.empty()){
+        vector<string> t_str{a.first.begin(), a.first.end()};
+        t_str.push_back((b.first[k]));
+        temp.first = t_str;
+        temp.second = v_v_int;
+        Tc.push_back(temp);
     }
 
 }
@@ -106,7 +120,7 @@ vector<_pro_table> JoinBased::gen_table_ins(double min_prev, const vector<vector
         _pro_table temp = (*it);
         for(auto it_r = (it+1); it_r < Tk.end(); it_r++){
             _pro_table t = (*it_r);
-            if(is_same_pre_k(temp, t, k-1)){//如果前k个相等，则尝试连接，连接的内容为第k个元素
+            if(is_same_pre_k(temp, t, k-1, Tc)){//如果前k个相等，则尝试连接，连接的内容为第k个元素
                 // join()
                 
             }

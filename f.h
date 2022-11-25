@@ -42,7 +42,7 @@ public:
     void process();
     bool isNiber(const Position &a, const Position &b);
     Position getPosition(string type, int id);
-    bool is_same_pre_k(const _pro_table &a, const _pro_table &b, int k);
+    bool is_same_pre_k(const _pro_table &a, const _pro_table &b, int k, vector<_pro_table> &Tc);
 };
 
 #endif
