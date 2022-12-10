@@ -35,8 +35,8 @@ public:
     bool isNiber(Position a, Position b);//计算两个点的距离，如果满足R返回true，否则返回false;
     //根据E生成二阶候选表实例，返回一个存储了二阶表实例的结构
     vector<pair<vector<string>, vector<int> > > getTable2(const vector<SpaceInstance> &E);
+    void process();
     
-
 };
 
 bool JoinBased::isNiber(Position a, Position b){
@@ -74,6 +74,9 @@ void reorganization(const vector<pair<vector<string>, vector<int> > > &T){
         
     }
 }
+void JoinBased::process(){
+    getTable2(E);
+}
 
 
 int main(){
@@ -93,4 +96,7 @@ int main(){
         SpaceInstance(1, Position(40,20), "D"),
         SpaceInstance(2, Position(6,10), "D")
     };
+    vector<string> ET;
+    JoinBased j(E, ET, 0.3, .03, 16);
+    j.process();
 }
