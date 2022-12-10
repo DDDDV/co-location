@@ -71,6 +71,7 @@ void JoinBased::getCountET(){
     }
 };
 
+
 bool JoinBased::isNiber(Position a, Position b){
     double distance = sqrt((pow(a.x - b.x, 2) + pow(a.y - b.y, 2)));
     if(distance < R){
